@@ -3,8 +3,8 @@
 // set token:       $env:GITHUB_ACCESS_TOKEN = 'ghp_xxx'
 // to run this:     node .\index.js
 
-const { Buffer } = require('node:buffer')
-const { Octokit } = require('@octokit/rest')
+import { Buffer } from 'node:buffer'
+import { Octokit } from '@octokit/rest'
 
 const base64Encode = (str) => {
   const buff = Buffer.from(str)
@@ -15,15 +15,17 @@ const octokit = new Octokit({
   auth: process.env.GITHUB_ACCESS_TOKEN,
 })
 
-// variable
-const order = '1'
+// order number, can be changed
+const order = '3'
 
 // json file content:
-const content = JSON.stringify({
+const data = JSON.stringify({
   name: 'test',
   order,
   enabled: true,
 })
+
+const content = base64Encode(data)
 
 // commit information
 const name = 'order bot'
@@ -35,6 +37,7 @@ const author = {
 // file name, based on order number
 const orderFileName = `order_${order}.json`
 
+// repo information
 const basics = {
   owner: 'Satak',
   repo: 'octo-tester',
@@ -44,19 +47,14 @@ const basics = {
 
 const main = async () => {
   try {
-    const contentEncoded = base64Encode(content)
-    const { data } = await octokit.repos.createOrUpdateFileContents({
+    return await octokit.repos.createOrUpdateFileContents({
       ...basics,
-      content: contentEncoded,
+      content,
       committer: {
         ...author
       },
-      author: {
-        ...author
-      },
+      author,
     })
-
-    console.log(data)
   } catch (err) {
     console.error(err)
   }
