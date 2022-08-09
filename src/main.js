@@ -16,27 +16,27 @@ const octokit = new Octokit({
 })
 
 // order number, can be changed
-const order = '6'
+const order = '7'
 
 // json file content:
 const data = JSON.stringify({
   name: 'test',
   order,
-  enabled: false,
+  enabled: true,
 })
 
 const content = base64Encode(data)
 
 // file name, based on order number
 const orderFileName = `order_${order}.json`
-
+const path = `orders/${orderFileName}`
 const message = `feat: Added ${orderFileName} programmatically`
 
 // repo information
 const basics = {
   owner: 'Satak',
   repo: 'octo-tester',
-  path: `orders/${orderFileName}`,
+  path,
 }
 
 // get sha from the file
@@ -47,16 +47,16 @@ const getSha = async () => {
     })
     return repoData.data.sha
   } catch (err) {
-    console.log(`orders/${orderFileName} doesn't exist, creating a new file...`)
+    console.log(`${path} doesn't exist, creating a new file...`)
   }
 }
 
 const main = async () => {
-  const sha = await getSha()
+  const sha = await getSha() ?? null
   try {
     return await octokit.repos.createOrUpdateFileContents({
       ...basics,
-      sha: sha ?? null,
+      sha,
       content,
       message,
     })
