@@ -16,44 +16,49 @@ const octokit = new Octokit({
 })
 
 // order number, can be changed
-const order = '3'
+const order = '6'
 
 // json file content:
 const data = JSON.stringify({
   name: 'test',
   order,
-  enabled: true,
+  enabled: false,
 })
 
 const content = base64Encode(data)
 
-// commit information
-const name = 'order bot'
-const email = 'sami.koskivaara@gmail.com'
-const author = {
-  name, email
-}
-
 // file name, based on order number
 const orderFileName = `order_${order}.json`
+
+const message = `feat: Added ${orderFileName} programmatically`
 
 // repo information
 const basics = {
   owner: 'Satak',
   repo: 'octo-tester',
   path: `orders/${orderFileName}`,
-  message: `feat: Added ${orderFileName} programmatically`,
+}
+
+// get sha from the file
+const getSha = async () => {
+  try {
+    const repoData = await octokit.rest.repos.getContent({
+      ...basics
+    })
+    return repoData.data.sha
+  } catch (err) {
+    console.log(`orders/${orderFileName} doesn't exist, creating a new file...`)
+  }
 }
 
 const main = async () => {
+  const sha = await getSha()
   try {
     return await octokit.repos.createOrUpdateFileContents({
       ...basics,
+      sha: sha ?? null,
       content,
-      committer: {
-        ...author
-      },
-      author,
+      message,
     })
   } catch (err) {
     console.error(err)
