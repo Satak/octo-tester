@@ -1,6 +1,12 @@
 {
+  "name": "github-integrator",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
   "dependencies": {
     "@octokit/rest": "^19.0.3"
-  },
-  "type": "module"
+  }
 }
